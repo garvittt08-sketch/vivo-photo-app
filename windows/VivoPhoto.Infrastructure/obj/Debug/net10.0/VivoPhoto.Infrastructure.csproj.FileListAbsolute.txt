@@ -1,0 +1,17 @@
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\VivoPhoto.Infrastructure.csproj.AssemblyReference.cache
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\VivoPhoto.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\VivoPhoto.Infrastructure.AssemblyInfoInputs.cache
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\VivoPhoto.Infrastructure.AssemblyInfo.cs
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\VivoPhoto.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\bin\Debug\net10.0\VivoPhoto.Infrastructure.deps.json
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\bin\Debug\net10.0\VivoPhoto.Infrastructure.runtimeconfig.json
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\bin\Debug\net10.0\VivoPhoto.Infrastructure.dll
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\bin\Debug\net10.0\VivoPhoto.Infrastructure.pdb
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\bin\Debug\net10.0\VivoPhoto.Core.dll
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\bin\Debug\net10.0\VivoPhoto.Core.pdb
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\VivoPhot.B06998FB.Up2Date
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\VivoPhoto.Infrastructure.dll
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\refint\VivoPhoto.Infrastructure.dll
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\VivoPhoto.Infrastructure.pdb
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\VivoPhoto.Infrastructure.genruntimeconfig.cache
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\ref\VivoPhoto.Infrastructure.dll

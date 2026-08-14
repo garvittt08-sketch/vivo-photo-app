@@ -1,0 +1,6 @@
+@VivoPhoto.Server_HostAddress = http://localhost:5010
+
+GET {{VivoPhoto.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="VivoPhoto.Core/VivoPhoto.Core.csproj" />
+  <Project Path="VivoPhoto.Infrastructure/VivoPhoto.Infrastructure.csproj" />
+  <Project Path="VivoPhoto.Server/VivoPhoto.Server.csproj" />
+  <Project Path="VivoPhoto.Tests/VivoPhoto.Tests.csproj" />
+</Solution>

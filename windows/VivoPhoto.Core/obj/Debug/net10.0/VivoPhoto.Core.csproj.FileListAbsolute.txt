@@ -1,0 +1,12 @@
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Core\bin\Debug\net10.0\VivoPhoto.Core.deps.json
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Core\bin\Debug\net10.0\VivoPhoto.Core.dll
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Core\bin\Debug\net10.0\VivoPhoto.Core.pdb
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Core\obj\Debug\net10.0\VivoPhoto.Core.csproj.AssemblyReference.cache
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Core\obj\Debug\net10.0\VivoPhoto.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Core\obj\Debug\net10.0\VivoPhoto.Core.AssemblyInfoInputs.cache
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Core\obj\Debug\net10.0\VivoPhoto.Core.AssemblyInfo.cs
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Core\obj\Debug\net10.0\VivoPhoto.Core.csproj.CoreCompileInputs.cache
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Core\obj\Debug\net10.0\VivoPhoto.Core.dll
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Core\obj\Debug\net10.0\refint\VivoPhoto.Core.dll
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Core\obj\Debug\net10.0\VivoPhoto.Core.pdb
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Core\obj\Debug\net10.0\ref\VivoPhoto.Core.dll

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "xkAsCQaK0Dg=",
+  "success": true,
+  "projectFilePath": "C:\\Photo Sync and Photo Management System\\windows\\VivoPhoto.Core\\VivoPhoto.Core.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\mayuram\\.nuget\\packages\\sixlabors.imagesharp\\4.1.0\\sixlabors.imagesharp.4.1.0.nupkg.sha512",
+    "C:\\Users\\mayuram\\.nuget\\packages\\system.io.hashing\\8.0.0\\system.io.hashing.8.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
