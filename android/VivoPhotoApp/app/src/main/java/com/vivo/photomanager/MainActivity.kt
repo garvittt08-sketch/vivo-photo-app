@@ -22,6 +22,7 @@ import com.vivo.photomanager.ui.screens.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
 
@@ -170,7 +171,7 @@ class MainActivity : ComponentActivity() {
                 transferState = transferState.copy(
                     currentFileName = item.fileName,
                     filesCompleted = index + 1,
-                    speedMBps = (18.0..32.0).random()
+                    speedMBps = Random.nextDouble(18.0, 32.0)
                 )
             }
             transferState = transferState.copy(
@@ -194,7 +195,7 @@ class MainActivity : ComponentActivity() {
                 width = 4000,
                 height = 3000,
                 dateTaken = System.currentTimeMillis(),
-                score = (70..98).random()
+                score = Random.nextInt(70, 99)
             )
         }
     }
