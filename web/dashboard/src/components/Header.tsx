@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Wifi, Laptop, Search } from 'lucide-react';
+import { Wifi, Laptop, Search, Smartphone } from 'lucide-react';
 import { NetworkScannerModal } from './NetworkScannerModal';
 
 interface HeaderProps {
@@ -8,6 +8,10 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ title }) => {
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState({
+    hostname: 'Vivo V29 Pro',
+    ipAddress: '192.168.29.45',
+  });
 
   return (
     <>
@@ -17,10 +21,10 @@ export const Header: React.FC<HeaderProps> = ({ title }) => {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsScannerOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 text-xs font-semibold transition-all"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 text-xs font-bold transition-all shadow-sm"
           >
             <Search className="w-3.5 h-3.5" />
-            <span>Scan Network Devices</span>
+            <span>Select Device ({selectedDevice.hostname})</span>
           </button>
 
           {/* Connection Status Badge */}
@@ -29,15 +33,28 @@ export const Header: React.FC<HeaderProps> = ({ title }) => {
             <span>Wi-Fi Online</span>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-gray-300 text-xs font-medium">
-            <Laptop className="w-3.5 h-3.5 text-sky-400" />
-            <span>Vivo V29 Pro (192.168.29.45)</span>
+          <div
+            onClick={() => setIsScannerOpen(true)}
+            className="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-gray-200 text-xs font-medium transition-all"
+          >
+            <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{selectedDevice.hostname} ({selectedDevice.ipAddress})</span>
             <span className="w-2 h-2 rounded-full bg-emerald-400 ml-1"></span>
           </div>
         </div>
       </header>
 
-      <NetworkScannerModal isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)} />
+      <NetworkScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        selectedDeviceIp={selectedDevice.ipAddress}
+        onSelectDevice={(device) => {
+          setSelectedDevice({
+            hostname: device.hostname,
+            ipAddress: device.ipAddress,
+          });
+        }}
+      />
     </>
   );
 };
