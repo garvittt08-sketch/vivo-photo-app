@@ -53,15 +53,16 @@ namespace VivoPhoto.Server.Controllers
             int similarGroups = await _db.DuplicateGroups.CountAsync(g => g.GroupType == GroupType.SimilarPhoto);
             int needsReview = await _db.DuplicateGroups.CountAsync(g => g.ConfidenceScore < 70.0);
 
+            // Returns EXACT real database counts (0 if brand new database)
             return Ok(new
             {
-                totalScanned = totalScanned > 0 ? totalScanned : 5287,
-                totalPhotos = totalPhotos > 0 ? totalPhotos : 5287,
+                totalScanned,
+                totalPhotos,
                 totalVideos,
-                selectedCount = selectedCount > 0 ? selectedCount : 5287,
-                exactDuplicates = exactDuplicates > 0 ? exactDuplicates : 1142,
-                similarGroups = similarGroups > 0 ? similarGroups : 863,
-                needsReview = needsReview > 0 ? needsReview : 2
+                selectedCount,
+                exactDuplicates,
+                similarGroups,
+                needsReview
             });
         }
 
