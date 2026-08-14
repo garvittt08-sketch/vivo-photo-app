@@ -25,9 +25,7 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
 }) => {
   const [devices, setDevices] = useState<NetworkDevice[]>([]);
   const [loading, setLoading] = useState(false);
-  const [customNicknames, setCustomNicknames] = useState<Record<string, string>>({
-    '192.168.29.45': 'Vivo V29 Pro (Your Phone)',
-  });
+  const [customNicknames, setCustomNicknames] = useState<Record<string, string>>({});
   const [editingIp, setEditingIp] = useState<string | null>(null);
   const [tempNickname, setTempNickname] = useState('');
 
@@ -68,8 +66,8 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
               <Wifi className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">Connect & Name Wi-Fi Devices</h2>
-              <p className="text-xs text-gray-400">Scan connected devices, set custom nicknames, and select which device to pull photos from</p>
+              <h2 className="text-lg font-bold text-white">Wi-Fi Device Network Scanner</h2>
+              <p className="text-xs text-gray-400">Actual hostnames & IP addresses resolved directly from your Wi-Fi router</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-slate-800">
@@ -94,7 +92,7 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
           {loading ? (
             <div className="py-12 text-center space-y-3">
               <RefreshCw className="w-8 h-8 text-sky-400 animate-spin mx-auto" />
-              <p className="text-sm font-semibold text-gray-300">Probing local Wi-Fi IP range...</p>
+              <p className="text-sm font-semibold text-gray-300">Resolving real hostnames on your Wi-Fi network...</p>
             </div>
           ) : devices.length === 0 ? (
             <p className="text-xs text-gray-500 italic py-8 text-center">Click Rescan Subnet to scan connected devices.</p>
@@ -102,14 +100,7 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
             <div className="space-y-3">
               {devices.map((device) => {
                 const isSelected = selectedDeviceIp === device.ipAddress;
-                const displayName =
-                  customNicknames[device.ipAddress] ||
-                  (device.isServerHost
-                    ? device.hostname
-                    : device.hostname === 'Unknown Device' || device.hostname.includes('Mobile')
-                    ? `Vivo Phone (${device.ipAddress})`
-                    : device.hostname);
-
+                const displayName = customNicknames[device.ipAddress] || device.hostname;
                 const isEditing = editingIp === device.ipAddress;
 
                 return (
@@ -201,12 +192,12 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
 
         {/* Footer */}
         <div className="p-4 bg-slate-900/50 border-t border-slate-800 flex justify-between items-center text-xs text-gray-400">
-          <span>Tip: Click the edit pencil icon next to any device to set a custom nickname!</span>
+          <span>Real device hostnames resolved via router DNS/mDNS</span>
           <button
             onClick={onClose}
             className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 font-bold"
           >
-            Done
+            Close Scanner
           </button>
         </div>
       </div>

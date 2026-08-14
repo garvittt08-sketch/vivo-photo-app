@@ -25,10 +25,10 @@ namespace VivoPhoto.Infrastructure.Services
                 using var ping = new Ping();
                 try
                 {
-                    var reply = await ping.SendPingAsync(targetIp, 250);
+                    var reply = await ping.SendPingAsync(targetIp, 300);
                     if (reply.Status == IPStatus.Success)
                     {
-                        string hostName = GetKnownHostName(targetIp, localIp);
+                        string hostName = GetActualHostName(targetIp, localIp);
                         return new NetworkDeviceInfo
                         {
                             IpAddress = targetIp,
@@ -48,11 +48,16 @@ namespace VivoPhoto.Infrastructure.Services
             return results.OrderBy(x => x.IpAddress).ToList();
         }
 
-        private string GetKnownHostName(string targetIp, string localIp)
+        private string GetActualHostName(string targetIp, string localIp)
         {
             if (targetIp == localIp)
             {
                 return $"{Environment.MachineName} (This Laptop Server)";
+            }
+
+            if (targetIp.EndsWith(".1"))
+            {
+                return "Wi-Fi Router / Gateway";
             }
 
             try
@@ -60,13 +65,23 @@ namespace VivoPhoto.Infrastructure.Services
                 var hostEntry = Dns.GetHostEntry(targetIp);
                 if (!string.IsNullOrEmpty(hostEntry.HostName) && hostEntry.HostName != targetIp)
                 {
-                    return hostEntry.HostName;
+                    // Format mDNS domain names cleanly (e.g. DESKTOP-BL3JUMF.local -> DESKTOP-BL3JUMF)
+                    string clean = hostEntry.HostName;
+                    if (clean.EndsWith(".local", StringComparison.OrdinalIgnoreCase))
+                    {
+                        clean = clean.Substring(0, clean.Length - 6);
+                    }
+                    if (clean.EndsWith(".home", StringComparison.OrdinalIgnoreCase))
+                    {
+                        clean = clean.Substring(0, clean.Length - 5);
+                    }
+                    return clean;
                 }
             }
             catch { }
 
-            // Default clean naming for mobile devices on Wi-Fi
-            return $"Vivo Phone ({targetIp})";
+            // Accurate generic fallback based on IP address
+            return $"Wi-Fi Device ({targetIp})";
         }
 
         private string GetLocalIpAddress()
