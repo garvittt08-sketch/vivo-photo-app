@@ -19,8 +19,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Core Infrastructure Services
 builder.Services.AddSingleton<ITransferManager, FileTransferManager>();
-builder.Services.AddSingleton<IPerceptualHasher, PerceptualHasher>();
-builder.Services.AddSingleton<IBestPhotoScorer, BestPhotoScorer>();
 builder.Services.AddScoped<ISimilarityEngine, SimilarityEngine>();
 builder.Services.AddSingleton<INetworkScanner, NetworkScanner>();
 
