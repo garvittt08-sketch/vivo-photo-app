@@ -28,18 +28,11 @@ namespace VivoPhoto.Infrastructure.Services
                     var reply = await ping.SendPingAsync(targetIp, 250);
                     if (reply.Status == IPStatus.Success)
                     {
-                        string hostName = "Unknown Device";
-                        try
-                        {
-                            var hostEntry = await Dns.GetHostEntryAsync(targetIp);
-                            hostName = hostEntry.HostName;
-                        }
-                        catch { }
-
+                        string hostName = GetKnownHostName(targetIp, localIp);
                         return new NetworkDeviceInfo
                         {
                             IpAddress = targetIp,
-                            Hostname = targetIp == localIp ? $"{Environment.MachineName} (This Laptop Server)" : hostName,
+                            Hostname = hostName,
                             IsAlive = true,
                             IsServerHost = targetIp == localIp,
                             ResponseTimeMs = (int)reply.RoundtripTime
@@ -53,6 +46,27 @@ namespace VivoPhoto.Infrastructure.Services
             var scanned = await Task.WhenAll(tasks);
             results.AddRange(scanned.Where(x => x != null)!);
             return results.OrderBy(x => x.IpAddress).ToList();
+        }
+
+        private string GetKnownHostName(string targetIp, string localIp)
+        {
+            if (targetIp == localIp)
+            {
+                return $"{Environment.MachineName} (This Laptop Server)";
+            }
+
+            try
+            {
+                var hostEntry = Dns.GetHostEntry(targetIp);
+                if (!string.IsNullOrEmpty(hostEntry.HostName) && hostEntry.HostName != targetIp)
+                {
+                    return hostEntry.HostName;
+                }
+            }
+            catch { }
+
+            // Default clean naming for mobile devices on Wi-Fi
+            return $"Vivo Phone ({targetIp})";
         }
 
         private string GetLocalIpAddress()

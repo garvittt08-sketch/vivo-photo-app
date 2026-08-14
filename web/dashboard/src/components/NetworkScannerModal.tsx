@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Wifi, Laptop, Smartphone, RefreshCw, X, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Wifi, Laptop, Smartphone, RefreshCw, X, CheckCircle2, ArrowRight, Edit2, Check } from 'lucide-react';
 import axios from 'axios';
 
 interface NetworkDevice {
@@ -25,6 +25,11 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
 }) => {
   const [devices, setDevices] = useState<NetworkDevice[]>([]);
   const [loading, setLoading] = useState(false);
+  const [customNicknames, setCustomNicknames] = useState<Record<string, string>>({
+    '192.168.29.45': 'Vivo V29 Pro (Your Phone)',
+  });
+  const [editingIp, setEditingIp] = useState<string | null>(null);
+  const [tempNickname, setTempNickname] = useState('');
 
   const runSubnetScan = async () => {
     setLoading(true);
@@ -46,6 +51,13 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
 
   if (!isOpen) return null;
 
+  const handleSaveNickname = (ip: string) => {
+    if (tempNickname.trim()) {
+      setCustomNicknames((prev) => ({ ...prev, [ip]: tempNickname.trim() }));
+    }
+    setEditingIp(null);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
       <div className="w-full max-w-2xl bg-[#111827] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
@@ -56,8 +68,8 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
               <Wifi className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">Connect & Select Target Wi-Fi Device</h2>
-              <p className="text-xs text-gray-400">Click any connected device below to connect and pair for photo transfers</p>
+              <h2 className="text-lg font-bold text-white">Connect & Name Wi-Fi Devices</h2>
+              <p className="text-xs text-gray-400">Scan connected devices, set custom nicknames, and select which device to pull photos from</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-slate-800">
@@ -90,56 +102,86 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
             <div className="space-y-3">
               {devices.map((device) => {
                 const isSelected = selectedDeviceIp === device.ipAddress;
-                const displayName = device.isServerHost
-                  ? `${device.hostname}`
-                  : device.hostname === 'Unknown Device'
-                  ? `Mobile Device (${device.ipAddress})`
-                  : device.hostname;
+                const displayName =
+                  customNicknames[device.ipAddress] ||
+                  (device.isServerHost
+                    ? device.hostname
+                    : device.hostname === 'Unknown Device' || device.hostname.includes('Mobile')
+                    ? `Vivo Phone (${device.ipAddress})`
+                    : device.hostname);
+
+                const isEditing = editingIp === device.ipAddress;
 
                 return (
                   <div
                     key={device.ipAddress}
-                    onClick={() => {
-                      onSelectDevice({ ...device, hostname: displayName });
-                      onClose();
-                    }}
-                    className={`cursor-pointer p-4 rounded-xl border flex items-center justify-between text-xs transition-all ${
+                    className={`p-4 rounded-xl border flex items-center justify-between text-xs transition-all ${
                       isSelected
                         ? 'bg-sky-500/15 border-sky-500 text-white ring-1 ring-sky-500/50'
-                        : 'bg-slate-900/60 border-slate-800 text-gray-300 hover:border-sky-500/50 hover:bg-slate-800/60'
+                        : 'bg-slate-900/60 border-slate-800 text-gray-300 hover:border-sky-500/50'
                     }`}
                   >
-                    <div className="flex items-center gap-3.5">
+                    <div className="flex items-center gap-3.5 flex-1 pr-4">
                       {device.isServerHost ? (
-                        <Laptop className="w-6 h-6 text-sky-400" />
+                        <Laptop className="w-6 h-6 text-sky-400 flex-shrink-0" />
                       ) : (
-                        <Smartphone className="w-6 h-6 text-emerald-400" />
+                        <Smartphone className="w-6 h-6 text-emerald-400 flex-shrink-0" />
                       )}
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-bold text-sm text-gray-100">{displayName}</p>
-                          {isSelected && (
-                            <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 text-[10px] font-bold">
-                              ACTIVE TARGET
-                            </span>
-                          )}
-                        </div>
+                      <div className="flex-1 min-w-0">
+                        {isEditing ? (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={tempNickname}
+                              onChange={(e) => setTempNickname(e.target.value)}
+                              className="px-2.5 py-1 rounded bg-slate-800 border border-sky-500 text-xs text-white focus:outline-none"
+                              placeholder="Enter device nickname..."
+                              autoFocus
+                            />
+                            <button
+                              onClick={() => handleSaveNickname(device.ipAddress)}
+                              className="p-1 rounded bg-emerald-500 text-slate-950 hover:bg-emerald-400"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold text-sm text-gray-100 truncate">{displayName}</p>
+                            {!device.isServerHost && (
+                              <button
+                                onClick={() => {
+                                  setEditingIp(device.ipAddress);
+                                  setTempNickname(displayName);
+                                }}
+                                className="p-1 rounded text-gray-500 hover:text-sky-400"
+                                title="Rename Device"
+                              >
+                                <Edit2 className="w-3 h-3" />
+                              </button>
+                            )}
+                            {isSelected && (
+                              <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 text-[10px] font-bold">
+                                ACTIVE TARGET
+                              </span>
+                            )}
+                          </div>
+                        )}
                         <p className="text-[11px] text-gray-400 font-mono mt-0.5">
                           IP: {device.ipAddress} • Response: {device.responseTimeMs} ms
                         </p>
                       </div>
                     </div>
 
-                    <div>
+                    <div className="flex-shrink-0">
                       {isSelected ? (
-                        <div className="px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md">
+                        <div className="px-3.5 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md">
                           <CheckCircle2 className="w-4 h-4" />
                           <span>Connected</span>
                         </div>
                       ) : (
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          onClick={() => {
                             onSelectDevice({ ...device, hostname: displayName });
                             onClose();
                           }}
@@ -159,12 +201,12 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
 
         {/* Footer */}
         <div className="p-4 bg-slate-900/50 border-t border-slate-800 flex justify-between items-center text-xs text-gray-400">
-          <span>Click any device card above to establish direct Wi-Fi sync</span>
+          <span>Tip: Click the edit pencil icon next to any device to set a custom nickname!</span>
           <button
             onClick={onClose}
             className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 font-bold"
           >
-            Close Scanner
+            Done
           </button>
         </div>
       </div>
