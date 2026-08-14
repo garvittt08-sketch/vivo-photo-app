@@ -9,6 +9,8 @@ workflows:
       - name: Build Android Debug APK
         script: |
           cd android/VivoPhotoApp
+          mkdir -p gradle/wrapper
+          curl -s -L -o gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/v8.7.0/gradle/wrapper/gradle-wrapper.jar
           chmod +x gradlew
           ./gradlew assembleDebug
     artifacts:
