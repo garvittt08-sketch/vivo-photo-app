@@ -1,6 +1,7 @@
 package com.vivo.photomanager.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,7 +29,8 @@ fun HomeScreen(
     needsReviewCount: Int,
     onStartScan: () -> Unit,
     onOpenReview: () -> Unit,
-    onStartTransfer: () -> Unit
+    onStartTransfer: () -> Unit,
+    onOpenNetworkScanner: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -84,38 +86,50 @@ fun HomeScreen(
                 }
             }
 
-            // Connection Info Box
+            // Connection Info Box with Network Scanner trigger
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color(0xFF111827)),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp)
+                    .clickable { onOpenNetworkScanner() }
             ) {
                 Row(
                     modifier = Modifier.padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Laptop,
-                        contentDescription = null,
-                        tint = Color(0xFF38BDF8),
-                        modifier = Modifier.size(32.dp)
-                    )
-                    Column {
-                        Text(
-                            text = pcName,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Laptop,
+                            contentDescription = null,
+                            tint = Color(0xFF38BDF8),
+                            modifier = Modifier.size(32.dp)
                         )
-                        Text(
-                            text = "Local IP: $pcIp • Port: 5000",
-                            color = Color(0xFF9CA3AF),
-                            fontSize = 12.sp
-                        )
+                        Column {
+                            Text(
+                                text = pcName,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                            Text(
+                                text = "Local IP: $pcIp • Port: 5000",
+                                color = Color(0xFF9CA3AF),
+                                fontSize = 12.sp
+                            )
+                        }
                     }
+
+                    Icon(
+                        imageVector = Icons.Default.WifiTethering,
+                        contentDescription = "Scan Devices",
+                        tint = Color(0xFF38BDF8)
+                    )
                 }
             }
         }

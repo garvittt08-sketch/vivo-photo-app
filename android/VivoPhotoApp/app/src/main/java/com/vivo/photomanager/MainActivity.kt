@@ -28,7 +28,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
 
@@ -76,7 +75,12 @@ class MainActivity : ComponentActivity() {
                             needsReviewCount = groups.size,
                             onStartScan = { runScan() },
                             onOpenReview = { currentScreen = "Review" },
-                            onStartTransfer = { runTransfer() }
+                            onStartTransfer = { runTransfer() },
+                            onOpenNetworkScanner = { currentScreen = "NetworkScanner" }
+                        )
+                        "NetworkScanner" -> NetworkScannerScreen(
+                            pcIp = pcIp,
+                            onBack = { currentScreen = "Home" }
                         )
                         "Scan" -> ScanScreen(
                             scannedCount = scannedCount,
