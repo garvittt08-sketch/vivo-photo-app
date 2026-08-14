@@ -7,6 +7,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -54,44 +56,46 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                when (currentScreen) {
-                    "Home" -> HomeScreen(
-                        isConnected = isConnected,
-                        pcName = pcName,
-                        pcIp = pcIp,
-                        totalScanned = scannedItems.size.ifZero(6247),
-                        selectedCount = scannedItems.count { it.isSelectedAsBest }.ifZero(4824),
-                        duplicatesCount = 1142,
-                        similarCount = 863,
-                        needsReviewCount = groups.size.ifZero(83),
-                        onStartScan = { runScan() },
-                        onOpenReview = { currentScreen = "Review" },
-                        onStartTransfer = { runTransfer() }
-                    )
-                    "Scan" -> ScanScreen(
-                        scannedCount = scannedCount,
-                        totalCount = totalScanCount,
-                        currentFileName = currentScanFile
-                    )
-                    "Review" -> ReviewScreen(
-                        groups = groups,
-                        onSelectBestPhoto = { groupId, mediaId ->
-                            groups = groups.map { g ->
-                                if (g.id == groupId) g.copy(selectedMediaId = mediaId) else g
+                Surface {
+                    when (currentScreen) {
+                        "Home" -> HomeScreen(
+                            isConnected = isConnected,
+                            pcName = pcName,
+                            pcIp = pcIp,
+                            totalScanned = scannedItems.size.ifZero(6247),
+                            selectedCount = scannedItems.count { it.isSelectedAsBest }.ifZero(4824),
+                            duplicatesCount = 1142,
+                            similarCount = 863,
+                            needsReviewCount = groups.size.ifZero(83),
+                            onStartScan = { runScan() },
+                            onOpenReview = { currentScreen = "Review" },
+                            onStartTransfer = { runTransfer() }
+                        )
+                        "Scan" -> ScanScreen(
+                            scannedCount = scannedCount,
+                            totalCount = totalScanCount,
+                            currentFileName = currentScanFile
+                        )
+                        "Review" -> ReviewScreen(
+                            groups = groups,
+                            onSelectBestPhoto = { groupId, mediaId ->
+                                groups = groups.map { g ->
+                                    if (g.id == groupId) g.copy(selectedMediaId = mediaId) else g
+                                }
+                            },
+                            onBack = { currentScreen = "Home" }
+                        )
+                        "Transfer" -> TransferScreen(
+                            state = transferState,
+                            onPauseResume = {
+                                transferState = transferState.copy(isPaused = !transferState.isPaused)
+                            },
+                            onCancel = {
+                                transferState = transferState.copy(isTransferring = false, statusMessage = "Cancelled")
+                                currentScreen = "Home"
                             }
-                        },
-                        onBack = { currentScreen = "Home" }
-                    )
-                    "Transfer" -> TransferScreen(
-                        state = transferState,
-                        onPauseResume = {
-                            transferState = transferState.copy(isPaused = !transferState.isPaused)
-                        },
-                        onCancel = {
-                            transferState = transferState.copy(isTransferring = false, statusMessage = "Cancelled")
-                            currentScreen = "Home"
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }

@@ -1,6 +1,7 @@
 package com.vivo.photomanager.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -98,14 +99,18 @@ fun GroupCard(
                 group.items.forEach { item ->
                     val isSelected = item.id == group.selectedMediaId
 
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = if (isSelected) Color(0xFF0284C7).copy(alpha = 0.2f) else Color(0xFF334155),
-                        shape = RoundedCornerShape(10.dp),
-                        onClick = { onSelectBest(item.id) }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = if (isSelected) Color(0xFF0284C7).copy(alpha = 0.2f) else Color(0xFF334155),
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .clickable { onSelectBest(item.id) }
+                            .padding(12.dp)
                     ) {
                         Row(
-                            modifier = Modifier.padding(12.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {

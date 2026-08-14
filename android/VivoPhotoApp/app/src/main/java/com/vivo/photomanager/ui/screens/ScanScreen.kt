@@ -2,7 +2,6 @@ package com.vivo.photomanager.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,7 +28,7 @@ fun ScanScreen(
         verticalArrangement = Arrangement.Center
     ) {
         CircularProgressIndicator(
-            progress = progress,
+            progress = { progress },
             modifier = Modifier.size(120.dp),
             color = Color(0xFF38BDF8),
             trackColor = Color(0xFF334155),
@@ -56,7 +55,7 @@ fun ScanScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         LinearProgressIndicator(
-            progress = progress,
+            progress = { progress },
             modifier = Modifier.fillMaxWidth().height(8.dp),
             color = Color(0xFF10B981),
             trackColor = Color(0xFF1E293B)
