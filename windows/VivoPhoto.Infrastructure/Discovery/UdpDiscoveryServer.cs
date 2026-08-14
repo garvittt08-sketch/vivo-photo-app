@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using VivoPhoto.Infrastructure.Services;
 
 namespace VivoPhoto.Infrastructure.Discovery
 {
@@ -35,6 +36,17 @@ namespace VivoPhoto.Infrastructure.Discovery
                 {
                     var result = await udpClient.ReceiveAsync(stoppingToken);
                     string message = Encoding.UTF8.GetString(result.Buffer);
+                    string senderIp = result.RemoteEndPoint.Address.ToString();
+
+                    // Register device model if provided in UDP probe payload (e.g. VIVO_PHOTO_DISCOVER|Samsung Galaxy S23)
+                    if (message.Contains('|'))
+                    {
+                        var parts = message.Split('|');
+                        if (parts.Length > 1 && !string.IsNullOrWhiteSpace(parts[1]))
+                        {
+                            NetworkScanner.RegisterDeviceModel(senderIp, parts[1].Trim());
+                        }
+                    }
 
                     if (message.Trim().StartsWith("VIVO_PHOTO_DISCOVER", StringComparison.OrdinalIgnoreCase))
                     {
