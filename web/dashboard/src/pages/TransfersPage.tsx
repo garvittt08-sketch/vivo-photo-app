@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRightLeft, ShieldCheck, Play, Pause, CheckCircle2 } from 'lucide-react';
+import { ArrowRightLeft, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import axios from 'axios';
 
 export const TransfersPage: React.FC = () => {
   const [sessions, setSessions] = useState<any[]>([]);
-  const [stats, setStats] = useState({ completedCount: 0, totalCount: 0, activeSpeed: 0 });
+  const [stats, setStats] = useState({ completedCount: 0, totalCount: 0 });
 
   const fetchTransfers = async () => {
     try {
       const res = await axios.get('http://localhost:5000/api/media');
-      const items = res.data;
+      const items = res.data || [];
       const completed = items.filter((i: any) => i.transferStatus === 2 || i.transferStatus === 'Completed');
       setSessions(completed);
       setStats({
         completedCount: completed.length,
-        totalCount: items.length,
-        activeSpeed: completed.length > 0 ? 28.4 : 0
+        totalCount: items.length
       });
     } catch (e) {
       console.error(e);
@@ -67,7 +66,7 @@ export const TransfersPage: React.FC = () => {
       <div className="p-6 rounded-2xl bg-[#111827] border border-[#1F2937] space-y-4">
         <h3 className="text-base font-bold text-white">Transferred & Verified Files ({sessions.length})</h3>
         {sessions.length === 0 ? (
-          <p className="text-xs text-gray-500 italic py-4">No files transferred yet. Run "Clean & Transfer" from your Vivo phone!</p>
+          <p className="text-xs text-gray-500 italic py-4">No files transferred yet. Connect your phone and tap "Clean & Transfer" to copy photos to E:\Vivo Photo!</p>
         ) : (
           <div className="divide-y divide-slate-800">
             {sessions.map((log) => (
