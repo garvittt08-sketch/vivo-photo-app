@@ -50,12 +50,13 @@ namespace VivoPhoto.Core.Models
         [JsonPropertyName("dateTaken")]
         public long DateTakenMillis { get; set; }
 
-        public DateTime DateTaken { get; set; } = DateTime.UtcNow;
+        [JsonIgnore]
+        public DateTime DateTaken => DateTimeOffset.FromUnixTimeMilliseconds(DateTakenMillis > 0 ? DateTakenMillis : DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()).DateTime;
 
         [JsonPropertyName("isVideo")]
         public bool IsVideo { get; set; }
 
-        public MediaType MediaType { get; set; } = MediaType.Photo;
+        public MediaType MediaType => IsVideo ? MediaType.Video : MediaType.Photo;
 
         // Content integrity
         [JsonPropertyName("sha256Hash")]
