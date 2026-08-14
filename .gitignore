@@ -1,0 +1,15 @@
+# Build outputs
+bin/
+obj/
+dist/
+node_modules/
+.temp/
+vivophoto.db
+vivophoto.db-journal
+
+# IDE & OS files
+.vs/
+.idea/
+*.user
+*.suo
+.DS_Store

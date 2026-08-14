@@ -25,8 +25,7 @@ jobs:
       - name: Build Debug APK
         run: |
           cd android/VivoPhotoApp
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          gradle assembleDebug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
