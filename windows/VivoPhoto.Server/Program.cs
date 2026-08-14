@@ -2,47 +2,45 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.IO;
 using VivoPhoto.Core.Interfaces;
 using VivoPhoto.Infrastructure.Data;
 using VivoPhoto.Infrastructure.Discovery;
 using VivoPhoto.Infrastructure.Services;
-using VivoPhoto.Infrastructure.Storage;
-using VivoPhoto.Infrastructure.Transfer;
-using VivoPhoto.Server.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Controllers and SignalR
+// Add services to container
 builder.Services.AddControllers();
-builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 
-// SQLite EF Core
-string dbPath = Path.Combine(builder.Environment.ContentRootPath, "vivophoto.db");
+// SQLite Database
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite($"Data Source={dbPath}"));
+    options.UseSqlite("Data Source=vivophoto.db"));
 
-// Singletons & Services
-builder.Services.AddSingleton<FileStorageManager>(sp => new FileStorageManager(@"E:\Vivo Photo"));
-builder.Services.AddSingleton<ITransferManager, ChunkedTransferReceiver>();
-builder.Services.AddTransient<ISimilarityEngine, SimilarityEngine>();
+// Core Infrastructure Services
+builder.Services.AddSingleton<ITransferManager, FileTransferManager>();
+builder.Services.AddSingleton<IPerceptualHasher, PerceptualHasher>();
+builder.Services.AddSingleton<IBestPhotoScorer, BestPhotoScorer>();
+builder.Services.AddScoped<ISimilarityEngine, SimilarityEngine>();
+builder.Services.AddSingleton<INetworkScanner, NetworkScanner>();
+
+// Hosted background UDP discovery service
 builder.Services.AddHostedService<UdpDiscoveryServer>();
 
-// CORS configuration for local dashboard & phone connection
+// CORS policy for Web Dashboard & Android App
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllLocal", policy =>
     {
         policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
 var app = builder.Build();
 
-// Ensure DB is created
+// Ensure Database Schema is Created
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -51,8 +49,7 @@ using (var scope = app.Services.CreateScope())
 
 app.UseCors("AllowAllLocal");
 app.UseAuthorization();
-
 app.MapControllers();
-app.MapHub<TransferHub>("/hubs/transfer");
 
+// Listen on HTTP Port 5000 across all local interfaces (0.0.0.0)
 app.Run("http://0.0.0.0:5000");
