@@ -8,11 +8,13 @@ import { SimilarPhotosPage } from './pages/SimilarPhotosPage';
 import { ReviewPage } from './pages/ReviewPage';
 import { TransfersPage } from './pages/TransfersPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { PairingPromptModal } from './components/PairingPromptModal';
 import { MediaItem, DuplicateGroup, SystemStats } from './types';
 import { fetchStats, fetchMedia, fetchDuplicateGroups, selectBestPhotoInGroup } from './services/api';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [connectedDevice, setConnectedDevice] = useState<{ name: string; ip: string } | null>(null);
 
   const [stats, setStats] = useState<SystemStats>({
     totalScanned: 0,
@@ -101,6 +103,11 @@ export const App: React.FC = () => {
         <Header title={getTitle()} />
         <main className="flex-1 overflow-y-auto">{renderContent()}</main>
       </div>
+
+      {/* Security Pairing Permission Modal */}
+      <PairingPromptModal
+        onApprovedDevice={(name, ip) => setConnectedDevice({ name, ip })}
+      />
     </div>
   );
 };
