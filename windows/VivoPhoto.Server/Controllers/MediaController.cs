@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using VivoPhoto.Core.Interfaces;
 using VivoPhoto.Core.Models;
 using VivoPhoto.Infrastructure.Data;
+using VivoPhoto.Infrastructure.Services;
 
 namespace VivoPhoto.Server.Controllers
 {
@@ -69,6 +70,13 @@ namespace VivoPhoto.Server.Controllers
         {
             if (items == null || items.Count == 0)
                 return BadRequest(new { error = "Empty batch" });
+
+            string clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "";
+            if (clientIp.StartsWith("::ffff:")) clientIp = clientIp.Substring(7);
+            if (!string.IsNullOrEmpty(clientIp) && !string.IsNullOrEmpty(items[0].DeviceId))
+            {
+                NetworkScanner.RegisterDeviceModel(clientIp, items[0].DeviceId);
+            }
 
             foreach (var item in items)
             {

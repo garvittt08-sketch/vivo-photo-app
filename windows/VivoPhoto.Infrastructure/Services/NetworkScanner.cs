@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -11,6 +12,16 @@ namespace VivoPhoto.Infrastructure.Services
 {
     public class NetworkScanner : INetworkScanner
     {
+        public static readonly ConcurrentDictionary<string, string> DeviceModelRegistry = new();
+
+        public static void RegisterDeviceModel(string ipAddress, string modelName)
+        {
+            if (!string.IsNullOrEmpty(ipAddress) && !string.IsNullOrEmpty(modelName))
+            {
+                DeviceModelRegistry[ipAddress] = modelName;
+            }
+        }
+
         public async Task<List<NetworkDeviceInfo>> ScanSubnetAsync()
         {
             var results = new List<NetworkDeviceInfo>();
@@ -25,10 +36,10 @@ namespace VivoPhoto.Infrastructure.Services
                 using var ping = new Ping();
                 try
                 {
-                    var reply = await ping.SendPingAsync(targetIp, 300);
+                    var reply = await ping.SendPingAsync(targetIp, 250);
                     if (reply.Status == IPStatus.Success)
                     {
-                        string hostName = GetActualHostName(targetIp, localIp);
+                        string hostName = GetResolvedHostName(targetIp, localIp);
                         return new NetworkDeviceInfo
                         {
                             IpAddress = targetIp,
@@ -48,7 +59,7 @@ namespace VivoPhoto.Infrastructure.Services
             return results.OrderBy(x => x.IpAddress).ToList();
         }
 
-        private string GetActualHostName(string targetIp, string localIp)
+        private string GetResolvedHostName(string targetIp, string localIp)
         {
             if (targetIp == localIp)
             {
@@ -57,15 +68,21 @@ namespace VivoPhoto.Infrastructure.Services
 
             if (targetIp.EndsWith(".1"))
             {
-                return "Wi-Fi Router / Gateway";
+                return "Wi-Fi Router Gateway (192.168.29.1)";
             }
 
+            // Check if device registered its exact model name during app connection
+            if (DeviceModelRegistry.TryGetValue(targetIp, out var registeredModel))
+            {
+                return $"{registeredModel} ({targetIp})";
+            }
+
+            // Try reverse DNS / mDNS resolution
             try
             {
                 var hostEntry = Dns.GetHostEntry(targetIp);
                 if (!string.IsNullOrEmpty(hostEntry.HostName) && hostEntry.HostName != targetIp)
                 {
-                    // Format mDNS domain names cleanly (e.g. DESKTOP-BL3JUMF.local -> DESKTOP-BL3JUMF)
                     string clean = hostEntry.HostName;
                     if (clean.EndsWith(".local", StringComparison.OrdinalIgnoreCase))
                     {
@@ -75,13 +92,13 @@ namespace VivoPhoto.Infrastructure.Services
                     {
                         clean = clean.Substring(0, clean.Length - 5);
                     }
-                    return clean;
+                    return $"{clean} ({targetIp})";
                 }
             }
             catch { }
 
-            // Accurate generic fallback based on IP address
-            return $"Wi-Fi Device ({targetIp})";
+            // Accurate generic network device label without assuming brand
+            return $"Mobile / Smart Device ({targetIp})";
         }
 
         private string GetLocalIpAddress()
