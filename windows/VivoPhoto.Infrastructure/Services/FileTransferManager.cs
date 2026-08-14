@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using VivoPhoto.Core.Interfaces;
 using VivoPhoto.Core.Models;
@@ -30,7 +31,7 @@ namespace VivoPhoto.Infrastructure.Services
             }
             catch
             {
-                // Fallback to C:\Vivo Photo if E:\ drive is not formatted
+                // Fallback to C:\Vivo Photo if E:\ drive is not available
                 _destinationFolder = @"C:\Vivo Photo";
                 if (!Directory.Exists(_destinationFolder))
                 {
@@ -52,13 +53,13 @@ namespace VivoPhoto.Infrastructure.Services
 
             var session = new TransferSession
             {
-                SessionId = sessionId,
+                Id = sessionId,
                 MediaItemId = mediaItemId,
                 FileName = fileName,
                 TotalBytes = totalBytes,
                 BytesTransferred = 0,
                 SourceSha256 = sourceSha256,
-                Status = TransferStatus.InProgress,
+                Status = "InProgress",
                 StartedAt = DateTime.UtcNow
             };
 
@@ -72,7 +73,7 @@ namespace VivoPhoto.Infrastructure.Services
             return Task.FromResult(session);
         }
 
-        public async Task<TransferSession> ReceiveChunkAsync(string sessionId, long offset, byte[] chunkData)
+        public Task<TransferSession> ReceiveChunkAsync(string sessionId, long offset, byte[] chunkData, CancellationToken cancellationToken = default)
         {
             if (!_activeSessions.TryGetValue(sessionId, out var wrapper))
             {
@@ -86,10 +87,10 @@ namespace VivoPhoto.Infrastructure.Services
                 wrapper.Session.BytesTransferred = Math.Max(wrapper.Session.BytesTransferred, wrapper.MemoryBuffer.Length);
             }
 
-            return await Task.FromResult(wrapper.Session);
+            return Task.FromResult(wrapper.Session);
         }
 
-        public async Task<bool> VerifyAndFinalizeAsync(string sessionId)
+        public async Task<bool> VerifyAndFinalizeAsync(string sessionId, CancellationToken cancellationToken = default)
         {
             if (!_activeSessions.TryGetValue(sessionId, out var wrapper))
             {
@@ -111,19 +112,30 @@ namespace VivoPhoto.Infrastructure.Services
 
             if (matches)
             {
-                wrapper.Session.Status = TransferStatus.Completed;
+                wrapper.Session.Status = "Completed";
                 wrapper.Session.CompletedAt = DateTime.UtcNow;
 
                 string targetPath = Path.Combine(_destinationFolder, wrapper.Session.FileName);
-                await File.WriteAllBytesAsync(targetPath, fileBytes);
+                await File.WriteAllBytesAsync(targetPath, fileBytes, cancellationToken);
             }
             else
             {
-                wrapper.Session.Status = TransferStatus.Failed;
+                wrapper.Session.Status = "Failed";
                 wrapper.Session.ErrorMessage = $"Bitwise SHA-256 hash mismatch! Source: {wrapper.Session.SourceSha256}, Received: {destinationHash}";
             }
 
             return matches;
+        }
+
+        public Task CancelSessionAsync(string sessionId)
+        {
+            if (_activeSessions.TryRemove(sessionId, out var wrapper))
+            {
+                wrapper.Session.Status = "Failed";
+                wrapper.Session.ErrorMessage = "Session cancelled by user.";
+                wrapper.MemoryBuffer.Dispose();
+            }
+            return Task.CompletedTask;
         }
 
         public TransferSession? GetSession(string sessionId)
