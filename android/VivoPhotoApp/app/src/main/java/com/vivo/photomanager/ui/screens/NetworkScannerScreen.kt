@@ -1,6 +1,5 @@
 package com.vivo.photomanager.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -44,7 +43,7 @@ data class NetworkDevicesResponse(
 @Composable
 fun NetworkScannerScreen(
     pcIp: String,
-    onSelectDevice: (NetworkDevice) => Unit,
+    onSelectDevice: (NetworkDevice) -> Unit,
     onBack: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -94,7 +93,7 @@ fun NetworkScannerScreen(
             TopAppBar(
                 title = { Text("Select Device to Sync", color = Color.White, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = { onBack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
                 },

@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
                         )
                         "NetworkScanner" -> NetworkScannerScreen(
                             pcIp = pcIp,
-                            onSelectDevice = { selectedDev ->
+                            onSelectDevice = { selectedDev: NetworkDevice ->
                                 pcName = selectedDev.hostname
                                 pcIp = selectedDev.ipAddress
                                 isConnected = true
