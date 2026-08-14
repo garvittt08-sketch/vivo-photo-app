@@ -31,23 +31,9 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
     try {
       const res = await axios.get('http://localhost:5000/api/network/devices');
       const list: NetworkDevice[] = res.data.devices || [];
-      
-      // If list is empty, provide fallback active Wi-Fi devices list so user can always select
-      if (list.length === 0) {
-        setDevices([
-          { ipAddress: '192.168.29.45', hostname: 'Vivo V29 Pro (Your Phone)', isAlive: true, isServerHost: false, responseTimeMs: 12 },
-          { ipAddress: '192.168.29.168', hostname: 'DESKTOP-0OOACPM (This Laptop)', isAlive: true, isServerHost: true, responseTimeMs: 1 },
-          { ipAddress: '192.168.29.1', hostname: 'Wi-Fi Gateway Router', isAlive: true, isServerHost: false, responseTimeMs: 4 },
-        ]);
-      } else {
-        setDevices(list);
-      }
+      setDevices(list);
     } catch (e) {
-      setDevices([
-        { ipAddress: '192.168.29.45', hostname: 'Vivo V29 Pro (Your Phone)', isAlive: true, isServerHost: false, responseTimeMs: 12 },
-        { ipAddress: '192.168.29.168', hostname: 'DESKTOP-0OOACPM (This Laptop)', isAlive: true, isServerHost: true, responseTimeMs: 1 },
-        { ipAddress: '192.168.29.1', hostname: 'Wi-Fi Gateway Router', isAlive: true, isServerHost: false, responseTimeMs: 4 },
-      ]);
+      console.error(e);
     }
     setLoading(false);
   };
@@ -70,8 +56,8 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
               <Wifi className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">Select Device to Sync Photos From</h2>
-              <p className="text-xs text-gray-400">Scan all active devices on Wi-Fi and choose which device to pull photos from</p>
+              <h2 className="text-lg font-bold text-white">Connect & Select Target Wi-Fi Device</h2>
+              <p className="text-xs text-gray-400">Click any connected device below to connect and pair for photo transfers</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-slate-800">
@@ -82,33 +68,45 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
         {/* Content */}
         <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
           <div className="flex items-center justify-between text-xs text-gray-400 pb-2 border-b border-slate-800/50">
-            <span>Found {devices.length} connected Wi-Fi devices</span>
+            <span>Found {devices.length} active Wi-Fi devices</span>
             <button
               onClick={runSubnetScan}
               disabled={loading}
               className="flex items-center gap-1.5 text-sky-400 hover:text-sky-300 font-semibold disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-              <span>Rescan Network</span>
+              <span>Rescan Subnet</span>
             </button>
           </div>
 
           {loading ? (
             <div className="py-12 text-center space-y-3">
               <RefreshCw className="w-8 h-8 text-sky-400 animate-spin mx-auto" />
-              <p className="text-sm font-semibold text-gray-300">Scanning Wi-Fi network subnet...</p>
+              <p className="text-sm font-semibold text-gray-300">Probing local Wi-Fi IP range...</p>
             </div>
+          ) : devices.length === 0 ? (
+            <p className="text-xs text-gray-500 italic py-8 text-center">Click Rescan Subnet to scan connected devices.</p>
           ) : (
             <div className="space-y-3">
               {devices.map((device) => {
                 const isSelected = selectedDeviceIp === device.ipAddress;
+                const displayName = device.isServerHost
+                  ? `${device.hostname}`
+                  : device.hostname === 'Unknown Device'
+                  ? `Mobile Device (${device.ipAddress})`
+                  : device.hostname;
+
                 return (
                   <div
                     key={device.ipAddress}
-                    className={`p-4 rounded-xl border flex items-center justify-between text-xs transition-all ${
+                    onClick={() => {
+                      onSelectDevice({ ...device, hostname: displayName });
+                      onClose();
+                    }}
+                    className={`cursor-pointer p-4 rounded-xl border flex items-center justify-between text-xs transition-all ${
                       isSelected
                         ? 'bg-sky-500/15 border-sky-500 text-white ring-1 ring-sky-500/50'
-                        : 'bg-slate-900/60 border-slate-800 text-gray-300 hover:border-slate-700'
+                        : 'bg-slate-900/60 border-slate-800 text-gray-300 hover:border-sky-500/50 hover:bg-slate-800/60'
                     }`}
                   >
                     <div className="flex items-center gap-3.5">
@@ -119,7 +117,7 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
                       )}
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-bold text-sm text-gray-100">{device.hostname}</p>
+                          <p className="font-bold text-sm text-gray-100">{displayName}</p>
                           {isSelected && (
                             <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 text-[10px] font-bold">
                               ACTIVE TARGET
@@ -134,19 +132,20 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
 
                     <div>
                       {isSelected ? (
-                        <button className="px-3.5 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold text-xs flex items-center gap-1.5">
+                        <div className="px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md">
                           <CheckCircle2 className="w-4 h-4" />
-                          <span>Selected</span>
-                        </button>
+                          <span>Connected</span>
+                        </div>
                       ) : (
                         <button
-                          onClick={() => {
-                            onSelectDevice(device);
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSelectDevice({ ...device, hostname: displayName });
                             onClose();
                           }}
-                          className="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-sky-500 hover:text-slate-950 text-sky-400 font-bold text-xs transition-all flex items-center gap-1.5"
+                          className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all flex items-center gap-1.5 shadow-md shadow-emerald-500/20"
                         >
-                          <span>Select Device</span>
+                          <span>Connect Device</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </button>
                       )}
@@ -160,12 +159,12 @@ export const NetworkScannerModal: React.FC<NetworkScannerModalProps> = ({
 
         {/* Footer */}
         <div className="p-4 bg-slate-900/50 border-t border-slate-800 flex justify-between items-center text-xs text-gray-400">
-          <span>Select any device to change photo sync target</span>
+          <span>Click any device card above to establish direct Wi-Fi sync</span>
           <button
             onClick={onClose}
             className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-gray-200 font-bold"
           >
-            Done
+            Close Scanner
           </button>
         </div>
       </div>
