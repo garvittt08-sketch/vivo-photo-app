@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
+using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Threading.Tasks;
 using VivoPhoto.Core.Interfaces;
 using VivoPhoto.Core.Models;
+using VivoPhoto.Infrastructure.Data;
 
 namespace VivoPhoto.Server.Controllers
 {
@@ -13,10 +14,12 @@ namespace VivoPhoto.Server.Controllers
     public class TransfersController : ControllerBase
     {
         private readonly ITransferManager _transferManager;
+        private readonly AppDbContext _db;
 
-        public TransfersController(ITransferManager transferManager)
+        public TransfersController(ITransferManager transferManager, AppDbContext db)
         {
             _transferManager = transferManager;
+            _db = db;
         }
 
         public record StartSessionRequest(string MediaItemId, string FileName, long TotalBytes, string SourceSha256);
@@ -70,6 +73,17 @@ namespace VivoPhoto.Server.Controllers
                     verified = false,
                     error = session?.ErrorMessage ?? "Verification failed"
                 });
+            }
+
+            if (session != null && !string.IsNullOrEmpty(session.MediaItemId))
+            {
+                var item = await _db.MediaItems.FirstOrDefaultAsync(m => m.Id == session.MediaItemId || m.AndroidMediaId == session.MediaItemId);
+                if (item != null)
+                {
+                    item.TransferStatus = TransferStatus.Completed;
+                    item.Sha256Hash = session.DestinationSha256;
+                    await _db.SaveChangesAsync();
+                }
             }
 
             return Ok(new
