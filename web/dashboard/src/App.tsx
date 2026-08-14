@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { DashboardPage } from './pages/DashboardPage';
@@ -9,73 +9,53 @@ import { ReviewPage } from './pages/ReviewPage';
 import { TransfersPage } from './pages/TransfersPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { MediaItem, DuplicateGroup, SystemStats } from './types';
+import { fetchStats, fetchMedia, fetchDuplicateGroups, selectBestPhotoInGroup } from './services/api';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const [stats, setStats] = useState<SystemStats>({
-    totalScanned: 6247,
-    totalPhotos: 5905,
-    totalVideos: 342,
-    selectedCount: 4824,
-    exactDuplicates: 1142,
-    similarGroups: 863,
-    needsReview: 83,
+    totalScanned: 0,
+    totalPhotos: 0,
+    totalVideos: 0,
+    selectedCount: 0,
+    exactDuplicates: 0,
+    similarGroups: 0,
+    needsReview: 0,
   });
 
-  const demoItems: MediaItem[] = Array.from({ length: 24 }).map((_, i) => ({
-    id: `item-${i + 1}`,
-    androidMediaId: `${i + 1}`,
-    fileName: `IMG_20260814_${1000 + i}.jpg`,
-    originalUri: `content://media/external/images/media/${i + 1}`,
-    fileSizeBytes: 3800000,
-    mimeType: 'image/jpeg',
-    width: 4000,
-    height: 3000,
-    dateTaken: '2026-08-14T10:45:00Z',
-    mediaType: 0,
-    sha256Hash: 'a8f9c2d1e4b5a6f7890123456789abcdef0123456789abcdef0123456789abcd',
-    isSelectedAsBest: i % 2 === 0,
-    transferStatus: 0,
-    analysis: {
-      sharpnessScore: 92 - (i % 5) * 3,
-      exposureScore: 88,
-      resolutionScore: 95,
-      overallScore: 94 - (i % 4) * 4,
-      confidenceScore: 90,
-      primaryReasons: 'Crisp focus • Optimal exposure • High resolution',
-    },
-  }));
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const [groups, setGroups] = useState<DuplicateGroup[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [groups, setGroups] = useState<DuplicateGroup[]>([
-    {
-      id: 'grp-101',
-      groupType: 0,
-      averageSimilarityScore: 100,
-      recommendedBestMediaId: 'item-1',
-      selectedMediaId: 'item-1',
-      confidenceScore: 100,
-      confidenceLevel: 0,
-      isUserReviewed: false,
-      items: [demoItems[0], demoItems[1]],
-    },
-    {
-      id: 'grp-102',
-      groupType: 1,
-      averageSimilarityScore: 92,
-      recommendedBestMediaId: 'item-3',
-      selectedMediaId: 'item-3',
-      confidenceScore: 88,
-      confidenceLevel: 1,
-      isUserReviewed: false,
-      items: [demoItems[2], demoItems[3], demoItems[4]],
-    },
-  ]);
+  const loadRealData = async () => {
+    setLoading(true);
+    const [realStats, realMedia, realGroups] = await Promise.all([
+      fetchStats(),
+      fetchMedia(),
+      fetchDuplicateGroups(),
+    ]);
 
-  const handleSelectBest = (groupId: string, mediaId: string) => {
-    setGroups((prev) =>
-      prev.map((g) => (g.id === groupId ? { ...g, selectedMediaId: mediaId } : g))
-    );
+    setStats(realStats);
+    setMediaItems(realMedia);
+    setGroups(realGroups);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadRealData();
+    const interval = setInterval(loadRealData, 5000); // Auto-refresh every 5 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleSelectBest = async (groupId: string, mediaId: string) => {
+    const success = await selectBestPhotoInGroup(groupId, mediaId);
+    if (success) {
+      setGroups((prev) =>
+        prev.map((g) => (g.id === groupId ? { ...g, selectedMediaId: mediaId } : g))
+      );
+      loadRealData();
+    }
   };
 
   const renderContent = () => {
@@ -83,7 +63,7 @@ export const App: React.FC = () => {
       case 'dashboard':
         return <DashboardPage stats={stats} onNavigate={setActiveTab} />;
       case 'photos':
-        return <PhotosPage items={demoItems} />;
+        return <PhotosPage items={mediaItems} />;
       case 'duplicates':
         return <DuplicateGroupsPage groups={groups} onSelectBest={handleSelectBest} />;
       case 'similar':
@@ -102,7 +82,7 @@ export const App: React.FC = () => {
 
   const getTitle = () => {
     switch (activeTab) {
-      case 'dashboard': return 'System Dashboard';
+      case 'dashboard': return 'System Dashboard (Live PC Backend)';
       case 'photos': return 'Scanned Media Catalog';
       case 'duplicates': return 'Exact Duplicate Groups';
       case 'similar': return 'Similar Photo Clusters';

@@ -15,3 +15,4 @@ C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\D
 C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\VivoPhoto.Infrastructure.pdb
 C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\VivoPhoto.Infrastructure.genruntimeconfig.cache
 C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\ref\VivoPhoto.Infrastructure.dll
+C:\Photo Sync and Photo Management System\windows\VivoPhoto.Infrastructure\obj\Debug\net10.0\VivoPhoto.Infrastructure.sourcelink.json

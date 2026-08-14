@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Settings as SettingsIcon, Folder, Shield, Network, Save, Check } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Settings as SettingsIcon, Folder, Save, Check } from 'lucide-react';
+import { fetchSettings, updateSettings } from '../services/api';
 
 export const SettingsPage: React.FC = () => {
   const [destinationPath, setDestinationPath] = useState('E:\\Vivo Photo');
@@ -7,7 +8,22 @@ export const SettingsPage: React.FC = () => {
   const [similarityThreshold, setSimilarityThreshold] = useState(85);
   const [saved, setSaved] = useState(false);
 
-  const handleSave = () => {
+  useEffect(() => {
+    fetchSettings().then((s) => {
+      if (s) {
+        setDestinationPath(s.photoDestinationPath || 'E:\\Vivo Photo');
+        setOrganizationMode(s.fileOrganizationMode || 'Original');
+        setSimilarityThreshold(s.similarityThreshold || 85);
+      }
+    });
+  }, []);
+
+  const handleSave = async () => {
+    await updateSettings({
+      photoDestinationPath: destinationPath,
+      fileOrganizationMode: organizationMode,
+      similarityThreshold: similarityThreshold
+    });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -80,9 +96,6 @@ export const SettingsPage: React.FC = () => {
             onChange={(e) => setSimilarityThreshold(Number(e.target.value))}
             className="w-full accent-sky-500"
           />
-          <p className="text-xs text-gray-500">
-            Higher values require near-exact visual matches before creating a similar photo cluster.
-          </p>
         </div>
 
         {/* Save Button */}
