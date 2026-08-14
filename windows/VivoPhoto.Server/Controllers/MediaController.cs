@@ -45,8 +45,8 @@ namespace VivoPhoto.Server.Controllers
         public async Task<IActionResult> GetStats()
         {
             int totalScanned = await _db.MediaItems.CountAsync();
-            int totalPhotos = await _db.MediaItems.CountAsync(m => m.MediaType == MediaType.Photo);
-            int totalVideos = await _db.MediaItems.CountAsync(m => m.MediaType == MediaType.Video);
+            int totalPhotos = await _db.MediaItems.CountAsync(m => !m.IsVideo);
+            int totalVideos = await _db.MediaItems.CountAsync(m => m.IsVideo);
             int selectedCount = await _db.MediaItems.CountAsync(m => m.IsSelectedAsBest);
             int exactDuplicates = await _db.DuplicateGroups.CountAsync(g => g.GroupType == GroupType.ExactDuplicate);
             int similarGroups = await _db.DuplicateGroups.CountAsync(g => g.GroupType == GroupType.SimilarPhoto);

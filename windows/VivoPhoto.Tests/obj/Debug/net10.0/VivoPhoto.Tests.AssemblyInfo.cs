@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VivoPhoto.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+693600848e8e4310d2cbc02cd517917dad627772")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1095ab3334046a26bd462dfb2e1df76d01376d7a")]
 [assembly: System.Reflection.AssemblyProductAttribute("VivoPhoto.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VivoPhoto.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
