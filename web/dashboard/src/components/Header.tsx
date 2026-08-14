@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wifi, RefreshCw, AlertTriangle, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { Wifi, AlertTriangle, Smartphone, Radio } from 'lucide-react';
 import { NetworkScannerModal } from './NetworkScannerModal';
 import axios from 'axios';
 
@@ -9,13 +9,13 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ title }) => {
   const [isScannerOpen, setIsScannerOpen] = useState(false);
-  const [selectedDeviceIp, setSelectedDeviceIp] = useState('192.168.29.45');
-  const [selectedDeviceName, setSelectedDeviceName] = useState('Vivo Mobile Phone');
+  const [selectedDeviceIp, setSelectedDeviceIp] = useState('');
+  const [selectedDeviceName, setSelectedDeviceName] = useState('');
   const [isBackendOnline, setIsBackendOnline] = useState(true);
 
   const checkBackendHealth = async () => {
     try {
-      await axios.get('http://localhost:5000/api/media/stats', { timeout: 2000 });
+      const res = await axios.get('http://localhost:5000/api/media/stats', { timeout: 2000 });
       setIsBackendOnline(true);
     } catch {
       setIsBackendOnline(false);
@@ -38,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({ title }) => {
           {isBackendOnline ? (
             <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>PC Backend Online (Port 5000)</span>
+              <span>PC Server Ready (Port 5000)</span>
             </span>
           ) : (
             <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold">
@@ -49,17 +49,23 @@ export const Header: React.FC<HeaderProps> = ({ title }) => {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Active Target Device Button */}
+          {/* Wi-Fi Device Connection / Subnet Scanner Button */}
           <button
             onClick={() => setIsScannerOpen(true)}
             className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-sky-500/50 text-xs transition-all group"
           >
-            <div className="p-1 rounded-lg bg-sky-500/10 text-sky-400 group-hover:scale-110 transition-transform">
-              <Wifi className="w-3.5 h-3.5" />
+            <div className={`p-1.5 rounded-lg transition-transform group-hover:scale-110 ${
+              selectedDeviceIp ? 'bg-emerald-500/10 text-emerald-400' : 'bg-sky-500/10 text-sky-400'
+            }`}>
+              {selectedDeviceIp ? <Smartphone className="w-4 h-4" /> : <Radio className="w-4 h-4 animate-pulse" />}
             </div>
             <div className="text-left">
-              <p className="text-[10px] text-gray-400 font-semibold leading-none">Target Wi-Fi Device</p>
-              <p className="text-xs font-bold text-gray-200 leading-tight mt-0.5">{selectedDeviceName}</p>
+              <p className="text-[10px] text-gray-400 font-semibold leading-none">
+                {selectedDeviceIp ? 'Paired Mobile Phone' : 'Wi-Fi Discovery Mode'}
+              </p>
+              <p className="text-xs font-bold text-gray-200 leading-tight mt-0.5">
+                {selectedDeviceIp ? `${selectedDeviceName} (${selectedDeviceIp})` : 'Listening on Port 8888'}
+              </p>
             </div>
           </button>
         </div>
@@ -69,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({ title }) => {
       {!isBackendOnline && (
         <div className="bg-red-500/15 border-b border-red-500/30 px-6 py-2 flex items-center justify-between text-xs text-red-200">
           <div className="flex items-center gap-2 font-medium">
-            <ShieldAlert className="w-4 h-4 text-red-400 flex-shrink-0" />
+            <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
             <span>Cannot reach ASP.NET Core server at <strong>http://localhost:5000</strong>. Run <code>dotnet run --project windows/VivoPhoto.Server/VivoPhoto.Server.csproj</code> in terminal to start server.</span>
           </div>
           <button onClick={checkBackendHealth} className="px-3 py-1 rounded bg-red-500/20 hover:bg-red-500/30 font-bold text-red-300">
